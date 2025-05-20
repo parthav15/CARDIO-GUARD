@@ -13,8 +13,6 @@ const FeedbackPage = () => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
     message: ''
   });
 
@@ -35,7 +33,7 @@ const FeedbackPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.message || rating === 0) {
+    if (!formData.message || rating === 0) {
       toast.error('Please fill out all fields and provide a rating!');
       return;
     }
@@ -59,7 +57,7 @@ const FeedbackPage = () => {
       .then((data) => {
         if (data.success) {
           toast.success('Thank you for your valuable feedback!');
-          setFormData({ name: '', email: '', message: '' });
+          setFormData({ message: '' });
           setRating(0);
         } else {
           toast.error(data.message || 'Submission failed. Please try again.');
@@ -112,30 +110,6 @@ const FeedbackPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
-              <div>
-                <label className="block text-slate-700 font-medium mb-2">Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-800 placeholder-slate-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-medium mb-2">Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="john@example.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-slate-800 placeholder-slate-400"
-                />
-              </div>
-
               <div>
                 <label className="block text-slate-700 font-medium mb-2">Your Feedback</label>
                 <textarea
