@@ -215,3 +215,68 @@ def edit_profile_picture_view(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Error saving profile picture: {str(e)}'}, status=500)
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def add_contactus_view(request):
+    """
+    Save contact us message to database
+    """
+    data = json.loads(request.body)
+    message = data.get('message')
+    email = data.get('email')
+    full_name = data.get('full_name')
+
+    if not message:
+        return JsonResponse({'success': False, 'message': 'Message is required.'}, status=400)
+
+    if not email:
+        return JsonResponse({'success': False, 'message': 'Email is required.'}, status=400)
+
+    if not full_name:
+        return JsonResponse({'success': False, 'message': 'Full name is required.'}, status=400)
+
+    try:
+        ContactUs.objects.create(message=message, email=email, full_name=full_name)
+        return JsonResponse({'success': True, 'message': 'Message sent successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def add_feedback_view(request):
+    """
+    Save feedback to database
+    """
+
+    bearer = request.headers.get('Authorization')
+    if not bearer:
+        return JsonResponse({'success': False, 'message': 'Authentication header is required.'}, status=401)
+
+    token = bearer.split()[1]
+    if not auth_user(token):
+        return JsonResponse({'success': False, 'message': 'Invalid token data.'}, status=401)
+
+    decoded_token = jwt_decode(token)
+    user_email = decoded_token.get('email')
+
+    try:
+        user = CustomUser.objects.get(email=user_email)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found.'}, status=404)
+
+    data = json.loads(request.body)
+    feedback = data.get('message')
+    rating = data.get('rating')
+
+    if not feedback:
+        return JsonResponse({'success': False, 'message': 'Feedback is required.'}, status=400)
+
+    if not rating:
+        return JsonResponse({'success': False, 'message': 'Rating is required.'}, status=400)
+
+    try:
+        Feedback.objects.create(feedback=feedback, rating=rating, user=user)
+        return JsonResponse({'success': True, 'message': 'Feedback sent successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
